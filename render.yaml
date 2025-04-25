@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: kids-education-agentic-web
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: ./start.sh
+    envVars:
+      - key: ELEVENLABS_API_KEY
+        value: false
+      - key: HF_API_TOKEN
+        value: false
+      - key: GROQ_API_KEY
+        value: false
