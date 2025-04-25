@@ -24,6 +24,12 @@ app.add_middleware(
 # Serve audio files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
+
+# Serve index.html on root
+@app.get("/")
+def serve_frontend():
+    return FileResponse("static/frontend/index.html")
+
 @app.post("/interact")
 async def process_request(
     input_type: str = Form(...),
