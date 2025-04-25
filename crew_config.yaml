@@ -1,0 +1,38 @@
+# backend/crew_config.yaml
+
+crew_name: KidsEducationCrew
+description: Multi-agent orchestrator for multimodal educational interactions
+
+agents:
+  - name: InputRouter
+    type: router
+    description: Routes input to the right agent based on type (text, audio, image)
+
+  - name: STTAgent
+    type: task
+    tool: Whisper
+    description: Converts audio files to text
+
+  - name: VisionAgent
+    type: task
+    tool: GoogleVision
+    description: Extracts labels from uploaded image
+
+  - name: LLMAgent
+    type: task
+    tool: Groq
+    description: Generates kid-friendly explanation from a prompt
+
+  - name: FeedbackAgent
+    type: task
+    tool: Groq
+    description: Rephrases or simplifies explanation based on feedback
+
+  - name: TTSAgent
+    type: task
+    tool: ElevenLabs
+    description: Converts explanation text to audio
+
+  - name: OutputHandler
+    type: final
+    description: Sends back final result in requested format (text, audio, etc.)
