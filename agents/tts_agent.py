@@ -1,15 +1,15 @@
-# agents/tts_agent.py
-
 from gtts import gTTS
 import os
 import uuid
+import time
 
 def run_tts_agent(text, language="en"):
     try:
-        tts = gTTS(text=text, lang="en", tld="co.uk")
+        # Sleep for a second to avoid rate limit
+        time.sleep(1)
 
+        tts = gTTS(text=text, lang=language)
         
-        # Save the audio file
         output_dir = "static/audio"
         os.makedirs(output_dir, exist_ok=True)
         
