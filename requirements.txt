@@ -7,3 +7,4 @@ groq
 openai
 python-multipart
 gTTS
+google-cloud-texttospeech

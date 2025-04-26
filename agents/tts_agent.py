@@ -1,23 +1,42 @@
-from gtts import gTTS
 import os
-import uuid
-import time
+import base64
+import requests
 
-def run_tts_agent(text, language="en"):
+GOOGLE_TTS_API_KEY = os.getenv("GOOGLE_TTS_API_KEY")  # Your API key should be set as env var
+
+def text_to_speech(text, output_file_path):
+    # Define the request payload
+    url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={GOOGLE_TTS_API_KEY}"
+
+    payload = {
+        "input": {
+            "text": text
+        },
+        "voice": {
+            "languageCode": "en-US",  # or change as needed
+            "name": "en-US-Standard-C",  # or use "en-US-Wavenet-D" if you want WaveNet
+            "ssmlGender": "FEMALE"  # MALE, FEMALE, or NEUTRAL
+        },
+        "audioConfig": {
+            "audioEncoding": "MP3"
+        }
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }
+
     try:
-        # Sleep for a second to avoid rate limit
-        time.sleep(1)
+        response = requests.post(url, json=payload, headers=headers)
+        response.raise_for_status()
 
-        tts = gTTS(text=text, lang=language)
-        
-        output_dir = "static/audio"
-        os.makedirs(output_dir, exist_ok=True)
-        
-        filename = f"{output_dir}/{uuid.uuid4().hex}.mp3"
-        tts.save(filename)
-        
-        return filename
+        audio_content = response.json()["audioContent"]
+
+        # Write the binary content to the output file
+        with open(output_file_path, "wb") as out:
+            out.write(base64.b64decode(audio_content))
+
+        print(f"Audio content written to file {output_file_path}")
 
     except Exception as e:
-        print(f"Error in TTS Agent: {e}")
-        return None
+        print(f"Error generating TTS audio: {e}")
