@@ -22,6 +22,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Make sure the folder exists
+os.makedirs("static/audio", exist_ok=True)
+
 # Serve audio files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 

@@ -31,15 +31,16 @@ def text_to_speech(text, output_file_path):
 
         audio_content = response.json()["audioContent"]
 
+        # Create the output directory if it doesn't exist
         os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
 
         with open(output_file_path, "wb") as out:
             out.write(base64.b64decode(audio_content))
 
-        print(f"Audio content written to file {output_file_path}")
+        print(f"✅ Audio content written to file: {output_file_path}")
 
     except Exception as e:
-        print(f"Error generating TTS audio: {e}")
+        print(f"❌ Error generating TTS audio: {e}")
 
 def run_tts_agent(text, output_file_path="static/audio/output.mp3"):
     text_to_speech(text, output_file_path)
