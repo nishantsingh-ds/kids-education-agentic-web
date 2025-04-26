@@ -1,80 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Kids Education App</title>
+  <meta charset="UTF-8">
+  <title>Kids Educate App</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; background: #f0f8ff; }
+    h1 { text-align: center; }
+    .container { max-width: 600px; margin: auto; }
+    input, button, select { margin-top: 10px; width: 100%; padding: 10px; }
+    #response { margin-top: 20px; padding: 10px; background: #fff; border-radius: 8px; }
+  </style>
 </head>
 <body>
-    <h1>Kids Education App 🎓</h1>
+  <div class="container">
+    <h1>🎒 Kids Educate App</h1>
 
-    <form id="interaction-form" enctype="multipart/form-data">
-        <label for="input_type">Input Type:</label>
-        <select name="input_type" id="input_type">
-            <option value="text">Text</option>
-            <option value="audio">Audio</option>
-            <option value="image">Image</option>
-        </select><br><br>
+    <label>Choose Input Type:</label>
+    <select id="inputType">
+      <option value="text">Text</option>
+      <option value="image">Image</option>
+    </select>
 
-        <label for="output_type">Output Type:</label>
-        <select name="output_type" id="output_type">
-            <option value="text">Text</option>
-            <option value="audio">Audio</option>
-        </select><br><br>
-
-        <label for="text">Text (if applicable):</label>
-        <input type="text" name="text" id="text"><br><br>
-
-        <label for="file">File (if applicable):</label>
-        <input type="file" name="file" id="file"><br><br>
-
-        <button type="submit">Submit</button>
-    </form>
-
-    <hr>
-
-    <h2>Response:</h2>
-    <pre id="response"></pre>
-
-    <div id="audio-controls" style="display: none; margin-top: 20px;">
-        <audio id="audio-player" controls></audio><br><br>
-        <a id="download-link" href="" download="output.mp3">
-            <button>Download Audio 🎵</button>
-        </a>
+    <div id="textInputDiv">
+      <input type="text" id="textInput" placeholder="Enter your question here..." />
     </div>
 
-    <script>
-        const form = document.getElementById('interaction-form');
-        const responseDiv = document.getElementById('response');
-        const audioControls = document.getElementById('audio-controls');
-        const audioPlayer = document.getElementById('audio-player');
-        const downloadLink = document.getElementById('download-link');
+    <div id="fileInputDiv" style="display: none;">
+      <input type="file" id="fileInput" accept="image/*" />
+    </div>
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
+    <label>Choose Output Type:</label>
+    <select id="outputType">
+      <option value="text">Text</option>
+      <option value="audio">Audio</option>
+    </select>
 
-            const formData = new FormData(form);
+    <button onclick="submitForm()">Submit</button>
 
-            try {
-                const res = await fetch('/interact', {
-                    method: 'POST',
-                    body: formData
-                });
+    <div id="response"></div>
+    <div id="audioPlayer" style="margin-top: 20px;"></div>
+  </div>
 
-                const data = await res.json();
-                responseDiv.textContent = JSON.stringify(data, null, 2);
+  <script>
+    const SERVER_URL = window.location.origin;  // <-- dynamically pick current server IP (no localhost hardcode)
 
-                if (formData.get("output_type") === "audio") {
-                    const audioUrl = '/static/audio/output.mp3?' + new Date().getTime();  // Force browser to fetch latest version
-                    audioPlayer.src = audioUrl;
-                    downloadLink.href = audioUrl;
-                    audioControls.style.display = 'block';
-                } else {
-                    audioControls.style.display = 'none';
-                }
-            } catch (err) {
-                responseDiv.textContent = "❌ Error: " + err;
-            }
+    const inputTypeSelect = document.getElementById('inputType');
+    const textInputDiv = document.getElementById('textInputDiv');
+    const fileInputDiv = document.getElementById('fileInputDiv');
+
+    inputTypeSelect.addEventListener('change', () => {
+      if (inputTypeSelect.value === 'text') {
+        textInputDiv.style.display = 'block';
+        fileInputDiv.style.display = 'none';
+      } else {
+        textInputDiv.style.display = 'none';
+        fileInputDiv.style.display = 'block';
+      }
+    });
+
+    async function submitForm() {
+      const inputType = document.getElementById('inputType').value;
+      const outputType = document.getElementById('outputType').value;
+      const textInput = document.getElementById('textInput').value;
+      const fileInput = document.getElementById('fileInput').files[0];
+
+      const formData = new FormData();
+      formData.append('input_type', inputType);
+      formData.append('output_type', outputType);
+      formData.append('feedback', '');
+
+      if (inputType === 'text') {
+        formData.append('text', textInput);
+      } else if (inputType === 'image' && fileInput) {
+        formData.append('file', fileInput);
+        formData.append('text', '');  // mandatory dummy text
+      }
+
+      const responseDiv = document.getElementById('response');
+      const audioDiv = document.getElementById('audioPlayer');
+
+      responseDiv.innerHTML = "⏳ Loading...";
+      audioDiv.innerHTML = "";
+
+      try {
+        const res = await fetch(SERVER_URL + '/interact', {
+          method: 'POST',
+          body: formData
         });
-    </script>
+        const data = await res.json();
+
+        responseDiv.innerHTML = "";
+        if (data.error) {
+          responseDiv.innerHTML = "❌ Error: " + data.error;
+        } else {
+          responseDiv.innerHTML = "✅ " + data.response;
+          if (data.audio_url) {
+            const fullAudioUrl = SERVER_URL + data.audio_url;
+            audioDiv.innerHTML = `<audio controls src="${fullAudioUrl}"></audio>`;
+          }
+        }
+      } catch (err) {
+        console.error('Fetch error:', err);
+        responseDiv.innerHTML = "❌ Network error!";
+      }
+    }
+
+    <button onclick="window.open('/static/audio/output.mp3', '_blank')">▶ Play Output Audio</button>
+
+  </script>
 </body>
 </html>
