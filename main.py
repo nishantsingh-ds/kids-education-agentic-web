@@ -4,6 +4,7 @@ load_dotenv()
 
 
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.responses import FileResponse
 from typing import Optional, Union
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
