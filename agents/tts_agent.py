@@ -1,11 +1,10 @@
 import os
-import base64
 import requests
+import base64
 
-GOOGLE_TTS_API_KEY = os.getenv("GOOGLE_TTS_API_KEY")  # Your API key should be set as env var
+GOOGLE_TTS_API_KEY = os.getenv("GOOGLE_TTS_API_KEY")
 
-def run_tts_agent(text, output_file_path):
-    # Define the request payload
+def text_to_speech(text, output_file_path):
     url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={GOOGLE_TTS_API_KEY}"
 
     payload = {
@@ -13,9 +12,9 @@ def run_tts_agent(text, output_file_path):
             "text": text
         },
         "voice": {
-            "languageCode": "en-US",  # or change as needed
-            "name": "en-US-Standard-C",  # or use "en-US-Wavenet-D" if you want WaveNet
-            "ssmlGender": "FEMALE"  # MALE, FEMALE, or NEUTRAL
+            "languageCode": "en-US",
+            "name": "en-US-Standard-C",
+            "ssmlGender": "FEMALE"
         },
         "audioConfig": {
             "audioEncoding": "MP3"
@@ -32,7 +31,6 @@ def run_tts_agent(text, output_file_path):
 
         audio_content = response.json()["audioContent"]
 
-        # Write the binary content to the output file
         with open(output_file_path, "wb") as out:
             out.write(base64.b64decode(audio_content))
 
@@ -40,3 +38,7 @@ def run_tts_agent(text, output_file_path):
 
     except Exception as e:
         print(f"Error generating TTS audio: {e}")
+
+def run_tts_agent(text, output_file_path="static/audio/output.mp3"):
+    text_to_speech(text, output_file_path)
+    return output_file_path
