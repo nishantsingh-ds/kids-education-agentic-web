@@ -4,7 +4,7 @@ import requests
 
 GOOGLE_TTS_API_KEY = os.getenv("GOOGLE_TTS_API_KEY")  # Your API key should be set as env var
 
-def text_to_speech(text, output_file_path):
+def run_tts_agent(text, output_file_path):
     # Define the request payload
     url = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={GOOGLE_TTS_API_KEY}"
 
