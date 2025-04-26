@@ -31,6 +31,8 @@ def text_to_speech(text, output_file_path):
 
         audio_content = response.json()["audioContent"]
 
+        os.makedirs(os.path.dirname(output_file_path), exist_ok=True)
+
         with open(output_file_path, "wb") as out:
             out.write(base64.b64decode(audio_content))
 
