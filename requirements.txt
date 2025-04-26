@@ -6,3 +6,4 @@ elevenlabs
 groq
 openai
 python-multipart
+gTTS

@@ -1,36 +1,23 @@
-# backend/agents/tts_agent.py
+# agents/tts_agent.py
+
+from gtts import gTTS
 import os
-from tempfile import NamedTemporaryFile
-from elevenlabs import ElevenLabs
+import uuid
 
-api_key = os.getenv("ELEVENLABS_API_KEY")
-
-def run_tts_agent(text):
+def run_tts_agent(text, language="en"):
     try:
-        client = ElevenLabs(api_key=api_key)
+        tts = gTTS(text=text, lang="en", tld="co.uk")
 
-        # Stream audio
-        audio_stream = client.generate(
-            text=text,
-            voice="Rachel",
-            model="eleven_monolingual_v1",
-            stream=True  # ✅ Stream chunks
-        )
-
-        # Join all chunks into bytes
-        audio_bytes = b"".join(audio_stream)
-
-        # Save
-        temp_dir = "static/audio"
-        os.makedirs(temp_dir, exist_ok=True)
-
-        temp_file = NamedTemporaryFile(delete=False, suffix=".mp3", dir=temp_dir)
-        with open(temp_file.name, "wb") as f:
-            f.write(audio_bytes)
-
-        audio_url = f"/static/audio/{os.path.basename(temp_file.name)}"
-        return audio_url
+        
+        # Save the audio file
+        output_dir = "static/audio"
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filename = f"{output_dir}/{uuid.uuid4().hex}.mp3"
+        tts.save(filename)
+        
+        return filename
 
     except Exception as e:
         print(f"Error in TTS Agent: {e}")
-        return str(e)
+        return None
