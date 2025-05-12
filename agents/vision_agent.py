@@ -11,7 +11,7 @@ async def run_vision_agent(file):
         }
 
         # Update the endpoint with the new model
-        endpoint = "https://api-inference.huggingface.co/models/Salesforce/blip-2"
+        endpoint = "https://api-inference.huggingface.co/models/Salesforce/blip2-opt-2.7b"
 
         response = requests.post(
             endpoint,
