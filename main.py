@@ -34,6 +34,18 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def serve_frontend():
     return FileResponse("static/frontend/index.html")
 
+@app.get("/debug")
+def check_keys():
+    hf_key = os.getenv("HF_API_TOKEN")
+    eleven_key = os.getenv("ELEVENLABS_API_KEY")
+    groq_key = os.getenv("GROQ_API_KEY")
+
+    return {
+        "HF_API_TOKEN": "Set" if hf_key else "Not Set",
+        "ELEVENLABS_API_KEY": "Set" if eleven_key else "Not Set",
+        "GROQ_API_KEY": "Set" if groq_key else "Not Set"
+    }
+
 @app.post("/interact")
 async def process_request(
     input_type: str = Form(...),

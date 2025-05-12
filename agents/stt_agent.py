@@ -5,8 +5,6 @@ import io
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-
-
 async def run_stt_agent(audio_file):
     audio_data = await audio_file.read()
     file_like = io.BytesIO(audio_data)  # ✅ convert bytes to file-like

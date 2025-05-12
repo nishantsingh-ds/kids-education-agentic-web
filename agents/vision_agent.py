@@ -4,25 +4,35 @@ import requests
 async def run_vision_agent(file):
     try:
         image_bytes = await file.read()
+
         headers = {
             "Authorization": f"Bearer {os.getenv('HF_API_TOKEN')}",
             "Content-Type": "application/octet-stream"
         }
 
+        # Update the endpoint with the new model
+        endpoint = "https://api-inference.huggingface.co/models/Salesforce/blip-2"
+
         response = requests.post(
-            "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-base",
+            endpoint,
             headers=headers,
-            data=image_bytes  # 🚨 send raw image data, NOT base64
+            data=image_bytes
         )
 
-        result = response.json()
-        print("✅ Hugging Face Output:", result)
+        # Debugging information
+        print(f"Response Status: {response.status_code}")
+        print(f"Response Content: {response.content}")
 
-        if isinstance(result, list) and "generated_text" in result[0]:
-            return [result[0]["generated_text"]]
+        # Handle response
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 404:
+            return {"error": "Model not found. Check the endpoint URL."}
+        elif response.status_code == 401:
+            return {"error": "Unauthorized - Invalid API Key"}
         else:
-            return {"error": str(result)}
+            return {"error": f"Unexpected response: {response.content}"}
 
     except Exception as e:
-        print("❌ Hugging Face Error:", e)
+        print(f"Exception in Vision Agent: {e}")
         return {"error": str(e)}
